@@ -103,4 +103,24 @@ resource "kubernetes_persistent_volume" "nginx_persistent_volume" {
 resource "kubernetes_persistent_volume_claim" "nginx_pvc" {
   metadata {
     name      = "nginx-pvc"
-    namespace = kubernetes_namespace.ng
+    namespace = kubernetes_namespace.nginx_namespace.metadata.0.name
+  }
+
+  spec {
+    access_modes = ["ReadWriteOnce"]
+
+    resources {
+      requests = {
+        storage = var.pvc_capacity
+      }
+    }
+
+    selector {
+      match_labels = {
+        app = "nginx"
+      }
+    }
+
+    storage_class_name = "local-storage"
+  }
+}
