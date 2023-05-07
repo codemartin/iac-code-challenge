@@ -6,7 +6,7 @@ unzip tflint.zip
 rm tflint.zip
 #normally I would use sudo here to move it but cnat be run on my machine via git bash 
 #sudo mv tflint /usr/local/bin/
-#mv tflint /usr/local/bin/
+mv tflint /usr/local/bin/
 
 # Run tflint on Terraform files
 ./tflint
