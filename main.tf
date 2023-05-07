@@ -5,26 +5,30 @@ resource "kubernetes_namespace" "nginx_namespace" {
   }
 }
 
-# Build a new nginx:latest image with a custom nginx.conf via Dockerfile
+# Build a new nginx image with a custom nginx.conf via Dockerfile
 resource "docker_image" "nginx_image" {
-  name         = "nginx"
+  name = "nginx"
+
   build {
-    context    = "${path.module}/"
+    path       = "."
     dockerfile = "${path.module}/Dockerfile"
   }
 }
 
 # Create 2 Replicaset with 0.5vcpu & 512Mi Limit and ClusterIP + Port 8080
-resource "kubernetes_replica_set" "nginx_replica_set" {
+resource "kubernetes_deployment" "nginx_deployment" {
   metadata {
-    name      = "nginx-replica-set"
+    name      = "nginx-deployment"
     namespace = kubernetes_namespace.nginx_namespace.metadata.0.name
+
     labels = {
       app = "nginx"
     }
   }
 
   spec {
+    replicas = var.replica_count
+
     selector {
       match_labels = {
         app = "nginx"
@@ -40,8 +44,8 @@ resource "kubernetes_replica_set" "nginx_replica_set" {
 
       spec {
         container {
-          image = docker_image.nginx_image.latest
           name  = "nginx"
+          image = docker_image.nginx_image.name
 
           resources {
             limits = {
@@ -50,7 +54,7 @@ resource "kubernetes_replica_set" "nginx_replica_set" {
             }
           }
 
-          ports {
+          port {
             container_port = 80
             name           = "http"
             protocol       = "TCP"
@@ -73,8 +77,6 @@ resource "kubernetes_replica_set" "nginx_replica_set" {
         }
       }
     }
-
-    replicas = var.replica_count
   }
 }
 
@@ -91,8 +93,10 @@ resource "kubernetes_persistent_volume" "nginx_persistent_volume" {
       storage = var.pvc_capacity
     }
 
-    local {
-      path = var.pvc_path
+    persistent_volume_source {
+      local {
+        path = var.pvc_path
+      }
     }
 
     storage_class_name = "local-storage"

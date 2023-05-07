@@ -40,5 +40,5 @@ variable "pvc_capacity" {
 
 variable "pvc_path" {
   type    = string
-  default = "${path.module}/pvc"
+  default = "./pvc"
 }

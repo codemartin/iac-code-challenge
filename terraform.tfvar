@@ -1,0 +1,3 @@
+export TF_VAR_docker_registry_username="myusername"
+export TF_VAR_docker_registry_password="mypassword"
+export TF_VAR_docker_registry_email="myemail@example.com"
